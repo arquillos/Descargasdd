@@ -1,5 +1,6 @@
 import configparser
 import logging
+import pyperclip
 
 from parsers import descargasdd_parser
 
@@ -11,7 +12,7 @@ if __name__ == '__main__':
     series = configparser.ConfigParser()
     series.read("configuration/series.ini", 'UTF-8')
 
-    logging.basicConfig(level=logging.INFO,
+    logging.basicConfig(level=logging.DEBUG,
                         filename=config['Logging']['file_path'] + config['Logging']['file_name'],
                         filemode='w',
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -21,3 +22,5 @@ if __name__ == '__main__':
     if download_links:
         print(f'[bold green]Links[/bold green]: {download_links}')
         logging.info(f'Links: {download_links}')
+        pyperclip.copy(download_links.__str__())
+

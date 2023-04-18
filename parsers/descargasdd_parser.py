@@ -17,9 +17,7 @@ def get_ethan_controlcc_link(episode: int, enlaces: str) -> str:
     # https://controlc.com/c0152470ç
     # https://www.keeplinks.org/p15/6397c3333f45e
     episode_number = 'Episodio ' + str(episode)
-    # filtered_links = enlaces.split(code_filter)[1].split('\r\n')[1]
-    # control_cc_link = filtered_links.split('\n')[0]
-    return enlaces.split(episode_number)[1].split('\r\n')[1]
+    return enlaces.split(episode_number)[1].replace('\r', '').split('\n')[1]
 
 
 def get_bryan_122_controlcc_link(episode: int, season: str, enlaces: str) -> str:
@@ -35,15 +33,13 @@ def get_bryan_122_controlcc_link(episode: int, season: str, enlaces: str) -> str
     return enlaces.split(episode_number + ' - ')[1].split('\n')[3]
 
 
-def get_control_cc_link_from_textbox(soup, tv_programs: configparser.ConfigParser, section: str) -> (str, str):
+def get_control_cc_link_from_textbox(soup, tv_programs: configparser.ConfigParser, section: str) -> (str, int):
     enlaces = soup.select(tv_programs[section]['title_selector'])[0].text
     new_episode: int = int(tv_programs[section]["episode"]) + 1
-    filtered_links = ''
-    control_cc_link = get_ethan_controlcc_link(new_episode, enlaces) if enlaces.startswith('Episodio') \
+    control_cc_link: str = get_ethan_controlcc_link(new_episode, enlaces) if enlaces.startswith('Episodio') \
         else get_bryan_122_controlcc_link(new_episode, tv_programs[section]['season'], enlaces)
 
-    logging.debug(f'Links to Episode {str(new_episode)}: {filtered_links}')
-    logging.debug(f'Control cc link: {control_cc_link}')
+    logging.debug(f'Links to Episode {str(new_episode)}, control cc link: {control_cc_link}')
 
     return control_cc_link, new_episode
 
@@ -93,7 +89,6 @@ def descargasdd_scrape(config: configparser.ConfigParser, tv_programs: configpar
                     logging.info(f'\tNew episode found: ' + title)
 
                     control_cc_link, new_episode = get_control_cc_link_from_textbox(soup, tv_programs, section)
-                    logging.debug(f'Control cc link: {control_cc_link}, New episode: {new_episode}')
                     episodes: list[str] = controlcc_parser.controlcc_scrape(control_cc_link)
 
                     print(f'\tEpisode links {str(new_episode)}: {episodes}')
